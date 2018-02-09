@@ -65,11 +65,24 @@ public class LonelyTwitterActivity extends Activity {
 
 			public void onClick(View v) {
 				setResult(RESULT_OK);
+				String searchQuery = bodyText.getText().toString();
+				ElasticsearchTweetController.GetTweetsTask search =
+						new ElasticsearchTweetController.GetTweetsTask();
 				tweetList.clear();
-				deleteFile(FILENAME);  // TODO deprecate this button
-				adapter.notifyDataSetChanged();
+				String elasticQuery = "{\n" + " \"query\": " +
+						"{ \"term\": {\"message\":\"" + searchQuery + "\"} }\n" + "}";
+				search.execute(elasticQuery);
+
+				try {
+					tweetList.addAll(search.get());
+				}
+				catch (Exception e) {
+					Log.i("Failed", "Search results not added");
+				}
+
 			}
 		});
+
 
 
 	}
